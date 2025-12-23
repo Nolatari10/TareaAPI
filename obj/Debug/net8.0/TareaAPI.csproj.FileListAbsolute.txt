@@ -120,6 +120,7 @@
 /home/joserosales/Projects/TareaAPI/obj/Debug/net8.0/TareaAPI.csproj.CoreCompileInputs.cache
 /home/joserosales/Projects/TareaAPI/obj/Debug/net8.0/TareaAPI.MvcApplicationPartsAssemblyInfo.cs
 /home/joserosales/Projects/TareaAPI/obj/Debug/net8.0/TareaAPI.MvcApplicationPartsAssemblyInfo.cache
+/home/joserosales/Projects/TareaAPI/obj/Debug/net8.0/TareaAPI.sourcelink.json
 /home/joserosales/Projects/TareaAPI/obj/Debug/net8.0/staticwebassets.build.json
 /home/joserosales/Projects/TareaAPI/obj/Debug/net8.0/staticwebassets.development.json
 /home/joserosales/Projects/TareaAPI/obj/Debug/net8.0/staticwebassets/msbuild.TareaAPI.Microsoft.AspNetCore.StaticWebAssets.props
