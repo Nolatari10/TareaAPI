@@ -23,10 +23,30 @@ public class TareasController : ControllerBase
     }
 
     // GET: api/tareas
+    //PAGINATION ADDED
+    
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Tarea>>> GetTareas()
+    public async Task<ActionResult<PaginatedResponse<Tarea>>> GetTareas([FromQuery] PaginationQuery paginationQuery)
     {
-        return await _context.Tareas.ToListAsync();
+        var total = await _context.Tareas.CountAsync();
+
+        var tareas = await _context.Tareas
+            .Skip((paginationQuery.Page - 1) * paginationQuery.PageSize) //jump previous pages
+            .Take(paginationQuery.PageSize)
+            .Select(t => new TareaDto
+            {
+                Nombre = t.Nombre ?? "",
+                Completada = t.Completada
+            })
+            .ToListAsync();
+
+        return Ok(new PaginatedResponse<TareaDto>
+        {
+            Items = tareas,
+            Page = paginationQuery.Page,
+            PageSize = paginationQuery.PageSize,
+            Total = total
+        });
     }
 
     // GET: api/tareas/5
@@ -63,19 +83,20 @@ public class TareasController : ControllerBase
 
     // PUT: api/tareas/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTarea(int id, Tarea tarea)
+    public async Task<IActionResult> PutTarea(int id, [FromBody] TareaUpdateDto updateDTO)
     {
-        if (id != tarea.Id) return BadRequest();
-        _context.Entry(tarea).State = EntityState.Modified;
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!TareaExists(id)) return NotFound();
-            throw;
-        }
+        var validation = await _updateValidator.ValidateAsync(updateDTO);
+        if (!validation.IsValid)
+          return BadRequest(validation.Errors);
+
+        var tarea = await _context.Tareas.FindAsync(id);
+        if (tarea == null) return NotFound();
+
+        if(updateDTO.Nombre != null)
+            tarea.Nombre = updateDTO.Nombre;
+        tarea.Completada = updateDTO.Completada;
+
+        await _context.SaveChangesAsync();
         return NoContent();
     }
 

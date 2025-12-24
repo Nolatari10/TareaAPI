@@ -16,7 +16,11 @@ builder.Services.AddValidatorsFromAssemblyContaining<TareaValidator>();
 // SQLite - archivo local tareas.db
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")!));
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "TareaAPI", Version = "v1" });  
 
+});
 var app = builder.Build();
 
 // Migrate database on startup (development only)
