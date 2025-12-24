@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TareaAPI.Data;
+using FluentValidation;
+using TareaAPI.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Validators
+builder.Services.AddValidatorsFromAssemblyContaining<TareaValidator>();
 
 // SQLite - archivo local tareas.db
 builder.Services.AddDbContext<AppDbContext>(options =>

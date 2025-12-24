@@ -1,9 +1,9 @@
-using FluentValidation;                    // ← ESTE ES CRÍTICO
-using TareaAPI.Models.DTOs;
+using FluentValidation;
+using TareaAPI.Models.DTOs;                    // ← ESTE ES CRÍTICO
 
 namespace TareaAPI.Validators;
 
-public class TareaValidator : AbstractValidator<TareaDto>
+public class TareaValidator : AbstractValidator<TareaCreateDto>
 {
     public TareaValidator()
     {

@@ -1,7 +1,9 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TareaAPI.Data;
 using TareaAPI.Models;
+using TareaAPI.Models.DTOs;
 
 namespace TareaAPI.Controllers;
 
@@ -10,10 +12,14 @@ namespace TareaAPI.Controllers;
 public class TareasController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IValidator<TareaCreateDto> _tareaValidator;
+    private readonly IValidator<TareaUpdateDto> _updateValidator;
 
-    public TareasController(AppDbContext context)
+    public TareasController(AppDbContext context, IValidator<TareaCreateDto> tareaValidator, IValidator<TareaUpdateDto> updateValidator)
     {
         _context = context;
+        _tareaValidator = tareaValidator;
+        _updateValidator = updateValidator;
     }
 
     // GET: api/tareas
@@ -34,11 +40,25 @@ public class TareasController : ControllerBase
 
     // POST: api/tareas
     [HttpPost]
-    public async Task<ActionResult<Tarea>> PostTarea(Tarea tarea)
+    public async Task<ActionResult<Tarea>> PostTarea([FromBody] TareaCreateDto createDTO)
     {
+        var validation = await _tareaValidator.ValidateAsync(createDTO);
+        if (!validation.IsValid)
+        {
+            return BadRequest(validation.Errors);
+        }
+
+        var tarea = new Tarea
+        {
+           Nombre = createDTO.Nombre,
+           Completada = createDTO.Completada,
+            FechaCreacion = DateTime.Now
+        };
+
         _context.Tareas.Add(tarea);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetTarea), new { id = tarea.Id }, tarea);
+        return CreatedAtAction(nameof(GetTarea), new { id = tarea.Id },
+        new TareaDto {Nombre = tarea.Nombre ?? "", Completada = tarea.Completada});
     }
 
     // PUT: api/tareas/5
