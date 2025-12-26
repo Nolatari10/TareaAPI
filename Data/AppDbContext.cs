@@ -6,6 +6,9 @@ namespace TareaAPI.Data;
 public class AppDbContext : DbContext
 {
     public DbSet<Tarea> Tareas => Set<Tarea>();
+
+    //created for user authentication
+    public DbSet<User> Users => Set<User>();
     
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     

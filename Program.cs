@@ -2,6 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using TareaAPI.Data;
 using FluentValidation;
 using TareaAPI.Validators;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models; // Para Swagger
+using Swashbuckle.AspNetCore; // Opcional, pero ayuda en Swagger
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +26,22 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new() { Title = "TareaAPI", Version = "v1" });  
 
 });
+
+//JWT Configuration Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+        .GetBytes(builder.Configuration["Jwt:Key"]!)),
+        ValidateIssuer = false, //valdidate this on production
+        ValidateAudience = false, // validate this on production
+    };
+});
+
 var app = builder.Build();
 
 // Migrate database on startup (development only)
@@ -38,7 +59,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthorization();
+app.UseAuthentication(); // verifica el token JWT
+app.UseAuthorization(); // verifica roles/permisos
 app.MapControllers();
 
 app.Run();

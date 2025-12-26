@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TareaAPI.Data;
@@ -9,6 +10,7 @@ namespace TareaAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize] 
 public class TareasController : ControllerBase
 {
     private readonly AppDbContext _context;
