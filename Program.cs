@@ -6,7 +6,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models; // Para Swagger
-using Swashbuckle.AspNetCore; // Opcional, pero ayuda en Swagger
+using Swashbuckle.AspNetCore;
+using TareaAPI.Repositories; // Opcional, pero ayuda en Swagger
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,10 +15,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+//Repositories
+builder.Services.AddScoped<ITareaRepository, TareaRepository>();
 //Validators
 builder.Services.AddValidatorsFromAssemblyContaining<TareaValidator>();
 
+var connectionString = builder.Configuration
+.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString));
+    
 // SQLite - archivo local tareas.db
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")!));

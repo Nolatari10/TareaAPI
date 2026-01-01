@@ -1,0 +1,44 @@
+
+services:
+  # Servicio 1: Tu Base de Datos SQL Server
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: tarea_sql_server
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD} # ¡Contraseña robusta obligatoria!
+    ports:
+      - "1433:1433" # Puerto estándar de SQL Server
+    volumes:
+      - sql_data:/var/opt/mssql # Persistencia de datos
+    networks:
+      - tarea-network
+
+  # Servicio 2: Tu API .NET
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tarea_api_container
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__Key=EstaEsUnaClaveSecretaSuperSeguraYLargaParaDesarrollo123!
+      # CONEXIÓN MÁGICA:
+      # Server=db (nombre del servicio arriba)
+      # User Id=sa
+      # Password= (el mismo de arriba)
+      # TrustServerCertificate=True (necesario para contenedores locales)
+      - ConnectionStrings__DefaultConnection=Server=db;Database={DB_NAME};User Id=sa;Password={DB_PASSWORD};TrustServerCertificate=True;
+    depends_on:
+      - db
+
+    networks:
+      - tarea-network
+
+volumes:
+  sql_data: # Volumen nombrado para persistencia
+
+networks:
+  tarea-network: # Red privada para que se hablen

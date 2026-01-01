@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TareaAPI.Data;
 using TareaAPI.Models;
 using TareaAPI.Models.DTOs;
+using TareaAPI.Repositories;
 
 namespace TareaAPI.Controllers;
 
@@ -16,12 +17,14 @@ public class TareasController : ControllerBase
     private readonly AppDbContext _context;
     private readonly IValidator<TareaCreateDto> _tareaValidator;
     private readonly IValidator<TareaUpdateDto> _updateValidator;
+    private readonly ITareaRepository _repository;
 
-    public TareasController(AppDbContext context, IValidator<TareaCreateDto> tareaValidator, IValidator<TareaUpdateDto> updateValidator)
+    public TareasController(AppDbContext context, IValidator<TareaCreateDto> tareaValidator, IValidator<TareaUpdateDto> updateValidator, ITareaRepository repository)
     {
         _context = context;
         _tareaValidator = tareaValidator;
         _updateValidator = updateValidator;
+        _repository = repository;
     }
 
     // GET: api/tareas
@@ -30,32 +33,16 @@ public class TareasController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PaginatedResponse<Tarea>>> GetTareas([FromQuery] PaginationQuery paginationQuery)
     {
-        var total = await _context.Tareas.CountAsync();
-
-        var tareas = await _context.Tareas
-            .Skip((paginationQuery.Page - 1) * paginationQuery.PageSize) //jump previous pages
-            .Take(paginationQuery.PageSize)
-            .Select(t => new TareaDto
-            {
-                Nombre = t.Nombre ?? "",
-                Completada = t.Completada
-            })
-            .ToListAsync();
-
-        return Ok(new PaginatedResponse<TareaDto>
-        {
-            Items = tareas,
-            Page = paginationQuery.Page,
-            PageSize = paginationQuery.PageSize,
-            Total = total
-        });
+        //all responsability moved to repository
+       var response = await _repository.GetAllTareasAsync(paginationQuery);
+       return Ok(response);
     }
 
     // GET: api/tareas/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Tarea>> GetTarea(int id)
     {
-        var tarea = await _context.Tareas.FindAsync(id);
+        var tarea = await _repository.GetTareaByIdAsync(id);
         if (tarea == null) return NotFound();
         return tarea;
     }
@@ -77,10 +64,9 @@ public class TareasController : ControllerBase
             FechaCreacion = DateTime.Now
         };
 
-        _context.Tareas.Add(tarea);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetTarea), new { id = tarea.Id },
-        new TareaDto {Nombre = tarea.Nombre ?? "", Completada = tarea.Completada});
+        var tareaCreada = await _repository.CreateTareaAsync(tarea);
+
+        return CreatedAtAction("GetTarea", new { id = tareaCreada.Id }, tareaCreada);
     }
 
     // PUT: api/tareas/5
@@ -106,10 +92,14 @@ public class TareasController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTarea(int id)
     {
-        var tarea = await _context.Tareas.FindAsync(id);
-        if (tarea == null) return NotFound();
-        _context.Tareas.Remove(tarea);
-        await _context.SaveChangesAsync();
+        var tarea = await _repository.GetTareaByIdAsync(id);
+
+        //validate if it exists
+        if(tarea == null)
+            return NotFound();
+            
+        //proceed to delete
+        await _repository.DeleteTareaAsync(tarea);
         return NoContent();
     }
 
