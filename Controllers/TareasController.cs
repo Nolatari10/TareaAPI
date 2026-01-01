@@ -14,14 +14,13 @@ namespace TareaAPI.Controllers;
 [Authorize] 
 public class TareasController : ControllerBase
 {
-    private readonly AppDbContext _context;
     private readonly IValidator<TareaCreateDto> _tareaValidator;
     private readonly IValidator<TareaUpdateDto> _updateValidator;
     private readonly ITareaRepository _repository;
 
-    public TareasController(AppDbContext context, IValidator<TareaCreateDto> tareaValidator, IValidator<TareaUpdateDto> updateValidator, ITareaRepository repository)
+    public TareasController( IValidator<TareaCreateDto> tareaValidator, IValidator<TareaUpdateDto> updateValidator, ITareaRepository repository)
     {
-        _context = context;
+      
         _tareaValidator = tareaValidator;
         _updateValidator = updateValidator;
         _repository = repository;
@@ -77,14 +76,14 @@ public class TareasController : ControllerBase
         if (!validation.IsValid)
           return BadRequest(validation.Errors);
 
-        var tarea = await _context.Tareas.FindAsync(id);
+        var tarea = await _repository.GetTareaByIdAsync(id);
         if (tarea == null) return NotFound();
 
         if(updateDTO.Nombre != null)
             tarea.Nombre = updateDTO.Nombre;
         tarea.Completada = updateDTO.Completada;
 
-        await _context.SaveChangesAsync();
+        await _repository.UpdateTareaAsync(tarea);
         return NoContent();
     }
 
@@ -103,5 +102,5 @@ public class TareasController : ControllerBase
         return NoContent();
     }
 
-    private bool TareaExists(int id) => _context.Tareas.Any(e => e.Id == id);
+    private bool TareaExists(int id) => _repository.GetTareaByIdAsync(id) != null;
 }
