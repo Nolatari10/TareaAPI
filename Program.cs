@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models; // Para Swagger
 using Swashbuckle.AspNetCore;
-using TareaAPI.Repositories; // Opcional, pero ayuda en Swagger
+using TareaAPI.Repositories;
+using TareaAPI.Models.DTOs; // Opcional, pero ayuda en Swagger
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +18,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 //Repositories
 builder.Services.AddScoped<ITareaRepository, TareaRepository>();
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 //Validators
 builder.Services.AddValidatorsFromAssemblyContaining<TareaValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<TareaUpdateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<TareaCreateDto>();
 
+builder.Services.AddValidatorsFromAssemblyContaining<CategoriaUpdateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CategoriaCreateDto>();
+builder.Services.AddValidatorsFromAssemblyContaining<CategoriaValidator>();
 var connectionString = builder.Configuration
 .GetConnectionString("DefaultConnection");
 

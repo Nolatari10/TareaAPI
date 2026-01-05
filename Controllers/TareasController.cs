@@ -1,8 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TareaAPI.Data;
 using TareaAPI.Models;
 using TareaAPI.Models.DTOs;
 using TareaAPI.Repositories;
@@ -43,7 +41,7 @@ public class TareasController : ControllerBase
     {
         var tarea = await _repository.GetTareaByIdAsync(id);
         if (tarea == null) return NotFound();
-        return tarea;
+        return Ok(tarea);
     }
 
     // POST: api/tareas

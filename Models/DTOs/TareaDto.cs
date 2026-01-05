@@ -18,7 +18,7 @@ namespace TareaAPI.Models.DTOs
     [StringLength(200, MinimumLength = 3)]
     public string Nombre { get; set; } = string.Empty;
 
-    public bool Completada { get; set; } = false;
+    public bool Completada {get; set; }
 }
 
 public class TareaUpdateDto
