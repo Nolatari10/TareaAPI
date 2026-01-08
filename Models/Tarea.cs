@@ -12,5 +12,9 @@ namespace TareaAPI.Models
     public bool Completada { get; set; }
 
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
+   
+    //ADDED CategoryId for relationship
+    public int? CategoriaId { get; set; } //fk nullable
+    public Categoria? Categoria { get; set; } //prop navigation
     }
 }

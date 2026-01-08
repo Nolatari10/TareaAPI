@@ -19,6 +19,9 @@ namespace TareaAPI.Models.DTOs
     public string Nombre { get; set; } = string.Empty;
 
     public bool Completada {get; set; }
+
+    //ADDED CategoryId to DTO
+    public int? CategoriaId { get; set; } //nullable
 }
 
 public class TareaUpdateDto
@@ -28,5 +31,7 @@ public class TareaUpdateDto
     public string Nombre { get; set; } = string.Empty;
 
     public bool Completada { get; set; }
+    //ADDED CategoryId to DTO
+    public int? CategoriaId { get; set; } //nullable
 }
 }

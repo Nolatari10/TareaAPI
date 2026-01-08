@@ -19,7 +19,8 @@ public class TareaRepository: ITareaRepository
         //Logic for pagination that before had in controller
         var totalItems = await _context.Tareas.CountAsync();
         
-        var items = await _context.Tareas.Skip((query.Page - 1) * query.PageSize)
+        var items = await _context.Tareas.Include(t => t.Categoria) //EAGER LOADING CATEGORY
+                                           .Skip((query.Page - 1) * query.PageSize)
                                            .Take(query.PageSize)
                                            .ToListAsync();
         return new PaginatedResponse<Tarea>(items, totalItems, query.Page, query.PageSize);
@@ -27,7 +28,8 @@ public class TareaRepository: ITareaRepository
 
     public async Task<Tarea?> GetTareaByIdAsync(int id)
     {
-        return await _context.Tareas.FindAsync(id);
+        return await _context.Tareas.Include(t => t.Categoria) //EAGER LOADING CATEGORY
+                                    .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<Tarea> CreateTareaAsync(Tarea tarea)

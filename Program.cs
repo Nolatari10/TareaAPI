@@ -21,12 +21,13 @@ builder.Services.AddScoped<ITareaRepository, TareaRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 //Validators
 builder.Services.AddValidatorsFromAssemblyContaining<TareaValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CategoriaValidator>();
+
 builder.Services.AddValidatorsFromAssemblyContaining<TareaUpdateValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<TareaCreateDto>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<CategoriaUpdateValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<CategoriaCreateDto>();
-builder.Services.AddValidatorsFromAssemblyContaining<CategoriaValidator>();
 var connectionString = builder.Configuration
 .GetConnectionString("DefaultConnection");
 
@@ -57,7 +58,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     };
 });
 
+//
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+
 var app = builder.Build();
+
 
 // Migrate database on startup (development only)
 using (var scope = app.Services.CreateScope())
@@ -72,7 +86,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseRouting();
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication(); // verifica el token JWT
 app.UseAuthorization(); // verifica roles/permisos

@@ -58,7 +58,8 @@ public class TareasController : ControllerBase
         {
            Nombre = createDTO.Nombre,
            Completada = createDTO.Completada,
-            FechaCreacion = DateTime.Now
+            FechaCreacion = DateTime.Now,
+            CategoriaId = createDTO.CategoriaId //ADDED
         };
 
         var tareaCreada = await _repository.CreateTareaAsync(tarea);
@@ -80,6 +81,7 @@ public class TareasController : ControllerBase
         if(updateDTO.Nombre != null)
             tarea.Nombre = updateDTO.Nombre;
         tarea.Completada = updateDTO.Completada;
+        tarea.CategoriaId = updateDTO.CategoriaId; //ADDED allow change category
 
         await _repository.UpdateTareaAsync(tarea);
         return NoContent();
